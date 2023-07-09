@@ -1,106 +1,105 @@
-const COMMANDS = {
-  help: 'Supported commands: ["<span class="code">about</span>", "<span class="code">experience</span>", "<span class="code">education</span>", "<span class="code">skills</span>", "<span class="code">contact</span>"]',
-  about:
-    "Hello 👋<br>I'm Twan Mulder. I’m a 23 yr old web developer currently living in the Netherlands. I have a burning passion to want and help others with code that I create. I enjoy the limitless potential of impact that I can have with what I build. It is what pushes me every day to become a better developer.",
-  skills: '<span class="code">Languages:</span> HTML, CSS, JavaScript<br><span class="code">Technologies:</span> Git, REST API\'s<br><span class="code">Frameworks:</span> React.js, Redux, GSAP, Sass, Vue.js',
-  education: "B.Sc. Interactive Media & Technologies - Hanze University of Applied Sciences, Groningen",
-  experience: "I'm currently working as a front-end developer at Storm Digital. My main areas of focus are helping our creative team build succesful digital creatives, and developing A/B tests for our CRO team.",
-  contact:
-    'You can contact me on any of the following links:<br>["<a target="_blank" rel="noopener noreferrer" href="https://github.com/twanmulder" class="social link">GitHub</a>", "<a target="_blank" rel="noopener noreferrer" href="https://medium.com/@toktoktwan" class="social link">Medium</a>", "<a target="_blank" rel="noopener noreferrer" href="https://www.twitter.com/toktoktwan/" class="social link">Twitter</a>"]',
-  bob: "<span style='font-size: 2rem;'>🐕</span>",
-  party: "🎉🎉🎉",
-  beer: '["<a target="_blank" rel="noopener noreferrer" href="https://anytimers.netlify.com" class="social link">Anytimers!</a>"]',
-  "sudo rm -rf": ""
-};
-let userInput, terminalOutput;
-
-const app = () => {
-  userInput = document.getElementById("userInput");
-  terminalOutput = document.getElementById("terminalOutput");
-  document.getElementById("dummyKeyboard").focus();
+/* --- Variables --- */
+let userInput, pwInput, terminalOutput, scrollingElement, pwLogin, pwTerminal, actualTerminal;
+let requiresPassword = true
+const password = 'pw'
+const commands = {
+  help: `You don't need any help.`
 };
 
-const execute = function executeCommand(input) {
-  let output;
-  input = input.toLowerCase();
+/* --- Functions --- */
+// Check if password is correct
+function checkPassword(input) {
+  // Variables
+  let output = `<div class="terminal-line"><span class="success">guest@enigma</span>'s password: ${input}</div>`;
 
-  if (input.length === 0) {
-    return;
-  }
-
-  // "Secret" party command
-  if (input === "party") {
-    startTheParty();
-  }
-
-  // "Secret" party command
-  if (input === "sudo rm -rf") {
-    whooops();
-  }
-
-  output = `<div class="terminal-line"><span class="success">➜</span> <span class="directory">~</span> ${input}</div>`;
-  if (!COMMANDS.hasOwnProperty(input)) {
-    output += `<div class="terminal-line">no such command: <span class="output">"${input}"</span></div>`;
-    console.log("Oops! no such command");
+  // Check password
+  if (input !== password) {
+    output += `<div class="terminal-line">Access denied.</div>`;
+    terminalOutput.innerHTML = `${terminalOutput.innerHTML}<div class="terminal-line">${output}</div>`;
   } else {
-    output += `<div class="output"> ${COMMANDS[input]} </div>`;
+    requiresPassword = false
+    hideById(pwTerminal)
+    showById(actualTerminal)
+    output += `<div class="terminal-line">Welcome, guest!</div>`;
+    terminalOutput.innerHTML = `${terminalOutput.innerHTML}<div class="terminal-line">${output}</div>`;
+  }
+}
+
+// Execute command
+function executeCommand(input) {
+  // Empty input
+  if (input.length === 0) return
+  else input = input.toLowerCase();
+
+  // Variables
+  let output = `<div class="terminal-line"><span class="success">guest@enigma</span><span class="directory">:$ </span>${input}</div>`;
+
+  // Check if command exists
+  if (!commands.hasOwnProperty(input)) {
+    output += `<div class="terminal-line">Command '${input}' not found.<span class="output"></span></div>`;
+  } else {
+    output += `<div class="output">${commands[input]}</div>`;
   }
 
   terminalOutput.innerHTML = `${terminalOutput.innerHTML}<div class="terminal-line">${output}</div>`;
-  terminalOutput.scrollTop = terminalOutput.scrollHeight;
 };
 
-const key = function keyEvent(e) {
-  const input = userInput.innerHTML;
+// Scroll to the bottom of the terminal
+function scrollToBottom() {
+  scrollingElement.scrollTop = scrollingElement.scrollHeight;
+}
 
-  if (e.key === "Enter") {
-    execute(input);
-    userInput.innerHTML = "";
-    return;
+// Show an element by ID
+function showById(element) {
+  element.style.display = 'block'
+}
+
+// Hide an element by ID
+function hideById(element) {
+  element.style.display = 'none'
+}
+
+/* --- Listeners --- */
+// Listen to backspace presses
+document.addEventListener("keydown", (event) => {
+  if (event.code === 'Backspace') {
+    if (requiresPassword) pwInput.innerHTML = pwInput.innerHTML.slice(0, pwInput.innerHTML.length - 1)
+    else userInput.innerHTML = userInput.innerHTML.slice(0, userInput.innerHTML.length - 1)
+  }
+});
+
+// Listen to key presses
+document.addEventListener("keypress", (event) => {
+  // Check if necessary to handle password logic
+  if (requiresPassword) {
+    const input = pwInput.innerHTML;
+    if (event.key === "Enter") {
+      checkPassword(input)
+      pwInput.innerHTML = "";
+    } else pwInput.innerHTML = input + event.key;
+  } else {
+    const input = userInput.innerHTML;
+    if (event.key === "Enter") {
+      executeCommand(input)
+      userInput.innerHTML = "";
+    } else userInput.innerHTML = input + event.key;
   }
 
-  userInput.innerHTML = input + e.key;
-};
+  scrollToBottom()
+});
 
-const backspace = function backSpaceKeyEvent(e) {
-  if (e.keyCode !== 8 && e.keyCode !== 46) {
-    return;
-  }
-  userInput.innerHTML = userInput.innerHTML.slice(0, userInput.innerHTML.length - 1);
-};
+// Load terminal when DOM content is ready
+document.addEventListener("DOMContentLoaded", () => {
+  // Get by IDs
+  userInput = document.getElementById("userInput");
+  pwInput = document.getElementById("pwInput");
+  terminalOutput = document.getElementById("terminalOutput");
+  terminalOutput = document.getElementById("terminalOutput");
+  pwLogin = document.getElementById("pwLogin");
+  pwTerminal = document.getElementById("pwTerminal");
+  actualTerminal = document.getElementById("actualTerminal");
 
-document.addEventListener("keydown", backspace);
-document.addEventListener("keypress", key);
-document.addEventListener("DOMContentLoaded", app);
-
-// TOP SECRET, DON'T READ
-const startTheParty = () => {
-  var confettiSettings = {
-    target: "canvas",
-    max: "1000",
-    size: "1",
-    animate: true,
-    props: ["square", "triangle", "line"],
-    colors: [
-      [165, 104, 246],
-      [230, 61, 135],
-      [0, 199, 228],
-      [253, 214, 126]
-    ],
-    clock: "25",
-    rotate: true,
-    width: "1680",
-    height: "971",
-    start_from_edge: true,
-    respawn: false
-  };
-  var confetti = new ConfettiGenerator(confettiSettings);
-  confetti.render();
-};
-
-const whooops = () => {
-  document.body.querySelector(".hero").remove();
-  document.body.style.background = "#000";
-  document.body.style.width = "100vw";
-  document.body.style.height = "100vh";
-};
+  // Other
+  document.getElementById("dummyKeyboard").focus();
+  scrollingElement = (document.scrollingElement || document.body);
+});
