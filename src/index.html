@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web terminal</title>
 
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -26,8 +27,10 @@
                   <input type="text" id="dummyKeyboard" class="dummy-keyboard" autocomplete="off" />
                 </div>
                 <div class="terminal-line" id="actualTerminal" hidden>
-                  <span class="success">guest@enigma</span><span class="directory">:$ </span><span class="user-input"
-                    id="userInput"></span>
+                  <!-- Small workaround for some formatters to not put spaces in between spans: https://stackoverflow.com/a/11430717/8234174 -->
+                  <span class="success">guest@enigma</span><!--
+                  --><span class="directory">:$ </span><!--
+                  --><span class="user-input" id="userInput"></span>
                   <input type="text" id="dummyKeyboard" class="dummy-keyboard" autocomplete="off" />
                 </div>
               </div>
@@ -37,6 +40,7 @@
       </div>
     </div>
   </section>
+
   <script src="./main.js"></script>
 </body>
 

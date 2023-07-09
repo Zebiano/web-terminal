@@ -2,6 +2,9 @@
 let userInput, pwInput, terminalOutput, scrollingElement, pwLogin, pwTerminal, actualTerminal;
 let requiresPassword = true // Change this to 'false' if no password is required, or change this dynamically to ask for password input
 const password = 'pw'
+const maxCommandHistory = 100
+let commandHistory = []
+let commandHistoryIndex = 0
 
 // List of commands
 const commands = {
@@ -67,11 +70,17 @@ function hideById(element) {
 }
 
 /* --- Listeners --- */
-// Listen to backspace presses
+// Listen to backspace and arrow presses
 document.addEventListener("keydown", (event) => {
   if (event.code === 'Backspace') {
     if (requiresPassword) pwInput.innerHTML = pwInput.innerHTML.slice(0, pwInput.innerHTML.length - 1)
     else userInput.innerHTML = userInput.innerHTML.slice(0, userInput.innerHTML.length - 1)
+  } else if (event.code === 'ArrowUp') {
+    if (commandHistoryIndex !== 0) commandHistoryIndex--
+    if (commandHistory[commandHistoryIndex]) userInput.innerHTML = commandHistory[commandHistoryIndex]
+  } else if (event.code === 'ArrowDown') {
+    if (commandHistoryIndex < commandHistory.length - 1) commandHistoryIndex++
+    if (commandHistory[commandHistoryIndex]) userInput.innerHTML = commandHistory[commandHistoryIndex]
   }
 });
 
@@ -87,6 +96,12 @@ document.addEventListener("keypress", (event) => {
   } else {
     const input = userInput.innerHTML;
     if (event.key === "Enter") {
+      if (commandHistory.length <= maxCommandHistory) commandHistory.push(input)
+      else {
+        commandHistory.shift()
+        commandHistory.push(input)
+      }
+      commandHistoryIndex = commandHistory.length
       executeCommand(input)
       userInput.innerHTML = "";
     } else userInput.innerHTML = input + event.key;

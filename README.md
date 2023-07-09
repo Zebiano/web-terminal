@@ -8,8 +8,10 @@ I was creating some puzzles and enigmas, and thought about using a terminal as p
 
 ## Features
 
-- Requires a password to login
 - No external dependencies
+- Can require a password to login
+- Existing commands: `help`, `clear`
+- Up and down arrows to cycle between last used commands
 
 ---
 
