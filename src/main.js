@@ -9,7 +9,7 @@ let commandHistoryIndex = 0
 // List of commands
 const commands = {
   help: { text: `You don't need any help.` },
-  clear: { command: () => terminalOutput.innerHTML = '' },
+  clear: { command: () => { hideById(pwLogin); terminalOutput.innerHTML = '' } },
 };
 
 /* --- Functions --- */
@@ -100,7 +100,6 @@ document.addEventListener("keypress", (event) => {
       // Add to command history array
       if (commandHistory.length <= maxCommandHistory) {
         commandHistory.splice(commandHistory.length - 1, 0, input)
-        console.log(commandHistory)
       } else {
         commandHistory.shift()
         commandHistory.push(input)
