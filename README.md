@@ -10,3 +10,7 @@ I was creating some puzzles and enigmas, and thought about using a terminal as p
 
 - Requires a password to login
 - No external dependencies
+
+---
+
+Please don't judge the code, I really just wanted something functional that was easy to implement and simply works.

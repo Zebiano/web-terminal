@@ -1,9 +1,12 @@
 /* --- Variables --- */
 let userInput, pwInput, terminalOutput, scrollingElement, pwLogin, pwTerminal, actualTerminal;
-let requiresPassword = true
+let requiresPassword = true // Change this to 'false' if no password is required, or change this dynamically to ask for password input
 const password = 'pw'
+
+// List of commands
 const commands = {
-  help: `You don't need any help.`
+  help: { text: `You don't need any help.` },
+  clear: { command: () => terminalOutput.innerHTML = '' },
 };
 
 /* --- Functions --- */
@@ -34,11 +37,15 @@ function executeCommand(input) {
   // Variables
   let output = `<div class="terminal-line"><span class="success">guest@enigma</span><span class="directory">:$ </span>${input}</div>`;
 
-  // Check if command exists
+  // Check if command does not exist
   if (!commands.hasOwnProperty(input)) {
     output += `<div class="terminal-line">Command '${input}' not found.<span class="output"></span></div>`;
   } else {
-    output += `<div class="output">${commands[input]}</div>`;
+    if (commands[input].hasOwnProperty('text')) output += `<div class="output">${commands[input].text}</div>`;
+    else if (commands[input].hasOwnProperty('command')) {
+      commands[input].command()
+      return
+    }
   }
 
   terminalOutput.innerHTML = `${terminalOutput.innerHTML}<div class="terminal-line">${output}</div>`;
@@ -98,6 +105,12 @@ document.addEventListener("DOMContentLoaded", () => {
   pwLogin = document.getElementById("pwLogin");
   pwTerminal = document.getElementById("pwTerminal");
   actualTerminal = document.getElementById("actualTerminal");
+
+  if (!requiresPassword) {
+    hideById(pwLogin)
+    hideById(pwTerminal)
+    showById(actualTerminal)
+  }
 
   // Other
   document.getElementById("dummyKeyboard").focus();
