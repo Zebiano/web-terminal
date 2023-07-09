@@ -3,7 +3,7 @@ let userInput, pwInput, terminalOutput, scrollingElement, pwLogin, pwTerminal, a
 let requiresPassword = true // Change this to 'false' if no password is required, or change this dynamically to ask for password input
 const password = 'pw'
 const maxCommandHistory = 100
-let commandHistory = []
+const commandHistory = ['']
 let commandHistoryIndex = 0
 
 // List of commands
@@ -33,11 +33,8 @@ function checkPassword(input) {
 
 // Execute command
 function executeCommand(input) {
-  // Empty input
-  if (input.length === 0) return
-  else input = input.toLowerCase();
-
   // Variables
+  input = input.toLowerCase();
   let output = `<div class="terminal-line"><span class="success">guest@enigma</span><span class="directory">:$ </span>${input}</div>`;
 
   // Check if command does not exist
@@ -76,11 +73,12 @@ document.addEventListener("keydown", (event) => {
     if (requiresPassword) pwInput.innerHTML = pwInput.innerHTML.slice(0, pwInput.innerHTML.length - 1)
     else userInput.innerHTML = userInput.innerHTML.slice(0, userInput.innerHTML.length - 1)
   } else if (event.code === 'ArrowUp') {
-    if (commandHistoryIndex !== 0) commandHistoryIndex--
-    if (commandHistory[commandHistoryIndex]) userInput.innerHTML = commandHistory[commandHistoryIndex]
+    if (commandHistoryIndex === commandHistory.length) commandHistoryIndex -= 2
+    else if (commandHistoryIndex !== 0) commandHistoryIndex--
+    userInput.innerHTML = commandHistory[commandHistoryIndex]
   } else if (event.code === 'ArrowDown') {
     if (commandHistoryIndex < commandHistory.length - 1) commandHistoryIndex++
-    if (commandHistory[commandHistoryIndex]) userInput.innerHTML = commandHistory[commandHistoryIndex]
+    userInput.innerHTML = commandHistory[commandHistoryIndex]
   }
 });
 
@@ -96,12 +94,20 @@ document.addEventListener("keypress", (event) => {
   } else {
     const input = userInput.innerHTML;
     if (event.key === "Enter") {
-      if (commandHistory.length <= maxCommandHistory) commandHistory.push(input)
-      else {
+      // Check for empty input
+      if (input.length === 0) return
+
+      // Add to command history array
+      if (commandHistory.length <= maxCommandHistory) {
+        commandHistory.splice(commandHistory.length - 1, 0, input)
+        console.log(commandHistory)
+      } else {
         commandHistory.shift()
         commandHistory.push(input)
       }
       commandHistoryIndex = commandHistory.length
+
+      // Execute command
       executeCommand(input)
       userInput.innerHTML = "";
     } else userInput.innerHTML = input + event.key;
